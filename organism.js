@@ -1,4 +1,3 @@
-//test
 class Organism {
   constructor(){
     this.position = createVector()
