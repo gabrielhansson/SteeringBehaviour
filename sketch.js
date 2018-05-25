@@ -37,8 +37,7 @@ function setup() {
 
 	//TEMP creates 10 new pieces from each meal
 	for (let meal of meals){
-		console.log(meal)
-		while(meal.pieces.length <= 10){
+				while(meal.pieces.length <= 10){
 			meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
 		}
 	}
