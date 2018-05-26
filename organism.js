@@ -1,12 +1,15 @@
 class Organism {
   constructor(){
-    this.position = createVector()
+    this.position = createVector(random(0, windowWidth), random(0, windowHeight))
     this.velocity = createVector()
     this.headingDiff = Infinity
     this.radius = 10
     this.maxSpeed = 5
     this.maxForce = 0.15
     this.perimiter = 50
+    // TODO: max force and maxspeed should alse be decided by the dna
+    this.health = 1
+    this.maxHealth = this.health
 
     //TEMP
     this.dna = []
@@ -16,7 +19,7 @@ class Organism {
     this.dna[1] = random(-1, 1)
   }
 
-  seek(target, meal){
+  seek(target){
     let desired = p5.Vector.sub(target, this.position)
     //Implement a slow down effect
     let distance = desired.mag()
@@ -35,30 +38,19 @@ class Organism {
 
     //depending on what type of meal is
     //the organisms dna should decide if it is attracted or not by it
-    if (meal === 'food') steer.mult(this.dna[0])
+    //TEMP:
+    if (meals[target.meal].name === 'food') steer.mult(this.dna[0])
     else steer.mult(this.dna[1])
 
     //update postition of organism
     this.velocity.add(steer)
     this.position.add(this.velocity)
-
-    //display organism but also its weights
-    fill(0)
-    push()
-      translate(this.position.x, this.position.y)
-      rotate(this.velocity.heading())
-      //bias lines
-      stroke(0, 255, 0)
-      line(0, 1, this.dna[0] * 100, 0)
-
-      stroke(255, 0, 0)
-      line(0, -1,  this.dna[1] * 100, 0)
-      triangle(this.radius, 0, -this.radius, this.radius, -this.radius, -this.radius)
-    pop()
   }
 
   //pass in an array things to eat
-  eat(meals){
+  hunt(meals){
+    //the health of the organism decreases over time
+    this.health -= 0.002
     //best piece to eat is the closest one
     let best
     //placeholder for the distance between every object
@@ -89,9 +81,29 @@ class Organism {
     if (best) {
       if (record < this.radius + meals[best.meal].radius && this.headingDiff < PI/5) {
         meals[best.meal].pieces.splice(best.index, 1)
+        this.health += meals[best.meal].healthyness
+        if (this.health > this.maxHealth) this.health = this.maxHealth
       }
       //OPTIMIZATION organism does not have to seek if best is already eaten
-      else this.seek(best, best.meal)
+      else this.seek(best)
     }
+  }
+
+  display(){
+    push()
+      translate(this.position.x, this.position.y)
+      rotate(this.velocity.heading())
+      //display weights
+      stroke(0, 255, 0)
+      line(0, 1, this.dna[0] * 100, 0)
+      stroke(255, 0, 0)
+      line(0, -1,  this.dna[1] * 100, 0)
+      //choose fill color based on health
+      let color = map(this.health, 0, this.maxHealth, 255, 0)
+      fill(color)
+      stroke(0)
+      strokeWeight(2)
+      triangle(this.radius, 0, -this.radius, this.radius, -this.radius, -this.radius)
+    pop()
   }
 }

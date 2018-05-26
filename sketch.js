@@ -2,33 +2,35 @@ let organisms = []
 let meals = [
 	{
 		name: 'food',
-		healthyness: 100,
+		healthyness: 0.5,
 		pieces: [],
 		radius: 15,
 		color: {
 			r: 0,
 			g: 255,
 			b: 0
-		}
+		},
+		regularity: 0.02
 	},
 	{
-		name: 'food',
-		healthyness: -50,
+		name: 'poison',
+		healthyness: -0.5,
 		pieces: [],
 		radius: 15,
 		color: {
 			r: 255,
 			g: 0,
 			b: 0
-		}
+		},
+		regularity: 0.02
 	}
 ]
 
-
+//TODO: add an addPiece prototype
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
-	noStroke()
+
 
 	//TEMP creates 10 new organisms
 	for (let i = 0; i < 10; i++){
@@ -36,24 +38,41 @@ function setup() {
 	}
 
 	//TEMP creates 10 new pieces from each meal
+
 	for (let meal of meals){
-				while(meal.pieces.length <= 10){
-			meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
-		}
+				while(meal.pieces.length <= 20) {
+					meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
+				}
 	}
 }
 
 function draw() {
-	background(255);
-	for (let organism of organisms)	organism.eat(meals)
+	background(255)
+	//as it is hard to splice an array whilst it is being iterated,
+	//list will keep track of the dead organisms to be deleted after the loop
+	let list = []
+	for (let organism of organisms)	{
+		organism.display()
+		organism.hunt(meals)
+		if (organism.health < 0) {
+			console.log(organism.health)
+			list.push(organisms.indexOf(organism))
+		}
+	}
+	for (let entry of list){
+		organisms.splice(entry, 1)
+	}
  	//draw the eatable things
-	for (let meal in meals){
-		let r = meals[meal].color.r
-		let g = meals[meal].color.g
-		let b = meals[meal].color.b
+	for (let meal of meals){
+		//food should recreated over time based on its regularity
+		if (Math.random() <= meal.regularity) meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
+
+		let r = meal.color.r
+		let g = meal.color.g
+		let b = meal.color.b
 		fill(r, g, b)
-		for (let piece of meals[meal].pieces){
-			ellipse(piece.x, piece.y, meals[meal].radius, meals[meal].radius)
+		for (let piece of meal.pieces){
+			ellipse(piece.x, piece.y, meal.radius, meal.radius)
 		}
 	}
 }
