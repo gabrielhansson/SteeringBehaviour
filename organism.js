@@ -1,25 +1,71 @@
+let mutationRate = 0.1
+let mutationDiff = 0.1
+
 class Organism {
-  constructor(){
-    this.position = createVector(random(0, windowWidth), random(0, windowHeight))
+  constructor(positionX = random(0, windowWidth), positionY = random(0, windowHeight), dna){
+    this.position = createVector(positionX, positionY)
     this.velocity = createVector()
     this.headingDiff = Infinity
     this.radius = 10
     this.maxSpeed = 5
     this.maxForce = 0.15
     this.perimiter = 50
-    // TODO: max force and maxspeed should alse be decided by the dna
     this.health = 1
     this.maxHealth = this.health
+    this.lifeTime = 0
+    this.moved
 
-    //TEMP
-    this.dna = []
-    //index 0 represents food and 1 represents poison
-    //that have a weight (attractiveness) towards different meals
-    this.dna[0] = random(-1, 1)
-    this.dna[1] = random(-1, 1)
-    //perception radius between 0 and 200
-    this.dna[2] = random(0, 200)
+    // TODO: the dna array should be dynamically based on the meals object
+    //TEMP: the percpetion radius' lower bound should be based on the meals radius
+
+    //as it shoulde be percieved if it is acutally on it
+    //first index represents the meal
+    //inside of that array, the first index represents attractiveness
+    //and second perceptioin
+    if (dna) {
+      dna = this.mutate(dna)
+    }
+    this.dna = dna || [
+      [random(-1, 1), random(15, 400)],
+      [random(-1, 1), random(15, 400)]
+    ]
   }
+
+  live(meals){
+    this.moved = false
+    //health and lifeTime change over time
+    this.health -= optVar.lostHealth
+    this.lifeTime += 1
+    this.display()
+    this.stayInBoundary()
+    this.hunt(meals)
+    if (!this.moved) this.updatePos()
+  }
+
+  display(){
+    push()
+      translate(this.position.x, this.position.y)
+      rotate(this.velocity.heading())
+      //display weights and perception
+      noFill()
+      strokeWeight(4)
+      stroke(0, 255, 0)
+      line(0, 0, this.dna[0][0] * 100, 0)
+      ellipse(0, 0, this.dna[0][1])
+      strokeWeight(2)
+      stroke(255, 0, 0)
+      line(0, 0,  this.dna[1][0] * 100, 0)
+      ellipse(0, 0, this.dna[1][1])
+
+      //choose fill color based on health
+      let color = map(this.health, 0, this.maxHealth, 255, 0)
+      fill(color)
+      stroke(255)
+      strokeWeight(2)
+      triangle(this.radius, 0, -this.radius, this.radius, -this.radius, -this.radius)
+    pop()
+  }
+
   stayInBoundary(){
     let desired
     let boundary = 10
@@ -41,9 +87,51 @@ class Organism {
       this.velocity
         .add(steer)
         .limit(this.maxSpeed)
-      this.position.add(this.velocity)
+      this.updatePos()
     }
   }
+
+  //pass in an array things to eat
+  hunt(meals){
+    //best piece to eat is the closest one
+    let best
+    //placeholder for the distance between every object
+    let record = Infinity
+    for (let meal of meals){
+      //the organism can only try to eat if there is actually something to eat
+      if (meal.pieces.length > 0) {
+        //the organism should only want to eat the closest consumable object
+        let index = -1
+        for (let piece of meal.pieces){
+          index++
+          let distance = this.position.dist(piece)
+          let currentMeal = meals.indexOf(meal)
+          if (distance < record && distance < this.dna[currentMeal][1]) {
+            record  = distance
+            best = piece
+            //the best piece is a vector that has to have
+            //a representing index in the pieces array
+            best.index = index
+            //...but also which meal it is
+            best.meal = currentMeal
+          }
+        }
+      }
+    }
+    //if close enough, it should be eaten
+    //the organism's head must almost point at the food
+    //the heading should therefore be around less than PI/5 radians
+    if (best) {
+      if (record < this.radius + meals[best.meal].radius && this.headingDiff < PI/5) {
+        meals[best.meal].pieces.splice(best.index, 1)
+        this.health += meals[best.meal].healthyness
+        if (this.health > this.maxHealth) this.health = this.maxHealth
+      }
+      //OPTIMIZATION organism does not have to seek if best is already eaten
+      else this.seek(best)
+    }
+  }
+
   seek(target){
     //creates desired velocity
     let desired = p5.Vector.sub(target, this.position)
@@ -66,76 +154,38 @@ class Organism {
     //depending on what type of meal is
     //the organisms dna should decide if it is attracted or not by it
     //TEMP:
-    if (meals[target.meal].name === 'food') steer.mult(this.dna[0])
-    else steer.mult(this.dna[1])
+    if (meals[target.meal].name === 'food') steer.mult(this.dna[0][0])
+    else steer.mult(this.dna[1][0])
 
     //update postition of organism
     this.velocity
       .add(steer)
       .limit(this.maxSpeed)
+    this.updatePos()
+  }
+
+  updatePos(){
     this.position.add(this.velocity)
+    this.moved = true
   }
 
-  //pass in an array things to eat
-  hunt(meals){
-    //the health of the organism decreases over time
-    this.health -= 0.002
-    //best piece to eat is the closest one
-    let best
-    //placeholder for the distance between every object
-    let record = Infinity
-    for (let meal of meals){
-      //the organism can only try to eat if there is actually something to eat
-      if (meal.pieces.length > 0) {
-        //the organism should only want to eat the closest consumable object
-        let index = -1
-        for (let piece of meal.pieces){
-          index++
-          let distance = this.position.dist(piece)
-          if (distance < record && distance < this.dna[2]) {
-            record  = distance
-            best = piece
-            //the best piece is a vector that has to have
-            //a representing index in the pieces array
-            best.index = index
-            //...but also which meal it is
-            best.meal = meals.indexOf(meal)
-          }
+  reproduced(){
+    return Math.random() < 0.001 ? true : false
+  }
+  reproduce(){
+    return new Organism(this.position.x, this.position.y, this.dna)
+  }
+
+  // TODO: the mutation should not exeed current weight and percpetion ranges
+  mutate(dna){
+    return dna.map(base => {
+      return base.map(e => {
+        if (Math.random() < mutationRate){
+         const change = e * mutationDiff
+         return e += random(-change, change)
         }
-      }
-    }
-    //if close enough, it should be eaten
-    //the organism's head must almost point at the food
-    //the heading should therefore be around less than PI/5 radians
-    if (best) {
-      if (record < this.radius + meals[best.meal].radius && this.headingDiff < PI/5) {
-        meals[best.meal].pieces.splice(best.index, 1)
-        this.health += meals[best.meal].healthyness
-        if (this.health > this.maxHealth) this.health = this.maxHealth
-      }
-      //OPTIMIZATION organism does not have to seek if best is already eaten
-      else this.seek(best)
-    }
-  }
-
-  display(){
-    push()
-      translate(this.position.x, this.position.y)
-      rotate(this.velocity.heading())
-      //display weights
-      stroke(0, 255, 0)
-      line(0, 1, this.dna[0] * 100, 0)
-      stroke(255, 0, 0)
-      line(0, -1,  this.dna[1] * 100, 0)
-      //display perception radius
-      noFill()
-      stroke(0)
-      ellipse(0, 0, this.dna[2])
-      //choose fill color based on health
-      let color = map(this.health, 0, this.maxHealth, 255, 0)
-      fill(color)
-      strokeWeight(2)
-      triangle(this.radius, 0, -this.radius, this.radius, -this.radius, -this.radius)
-    pop()
+        else return e
+      })
+    })
   }
 }
