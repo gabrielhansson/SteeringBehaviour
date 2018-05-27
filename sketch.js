@@ -47,12 +47,7 @@ function setup() {
 	}
 	cG = organisms.slice()
 
-	//TEMP: creates new pieces from each meal
-	for (let meal of meals){
-		while(meal.pieces.length <= 20) {
-			meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
-		}
-	}
+	resetMeals()
 }
 
 function draw() {
@@ -108,9 +103,9 @@ function draw() {
 		}
 		organisms = newGeneration.slice()
 		cG = newGeneration.slice()
+
+		resetMeals()
 	}
-
-
 
  	//draw the eatable things
 	for (let meal of meals){
@@ -124,6 +119,15 @@ function draw() {
 		fill(r, g, b)
 		for (let piece of meal.pieces){
 			ellipse(piece.x, piece.y, meal.radius, meal.radius)
+		}
+	}
+}
+
+function resetMeals(){
+	for (let meal of meals){
+		meal.pieces = []
+		while(meal.pieces.length <= 20) {
+			meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
 		}
 	}
 }
