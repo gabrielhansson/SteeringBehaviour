@@ -17,10 +17,37 @@ class Organism {
     //that have a weight (attractiveness) towards different meals
     this.dna[0] = random(-1, 1)
     this.dna[1] = random(-1, 1)
+    //perception radius between 0 and 200
+    this.dna[2] = random(0, 200)
   }
+  stayInBoundary(){
+    let desired
+    let boundary = 10
+    //hits right wall
+    if (this.position.x > windowWidth - boundary) desired = createVector(-this.maxSpeed, this.velocity.y)
+    //hits left wall
+    else if (this.position.x < boundary) desired = createVector(this.maxSpeed, this.velocity.y)
+    //hits top wall
+    else if (this.position.y > windowHeight - boundary) desired = createVector(this.velocity.x, -this.maxSpeed)
+    //hits bottom wall
+    else if (this.position.y < boundary) desired = createVector(this.velocity.x, this.maxSpeed)
 
+    if (desired) {
+      desired.setMag(this.maxSpeed)
+      let steer = p5.Vector
+        .sub(desired, this.velocity)
+        .limit(this.maxForce)
+
+      this.velocity
+        .add(steer)
+        .limit(this.maxSpeed)
+      this.position.add(this.velocity)
+    }
+  }
   seek(target){
+    //creates desired velocity
     let desired = p5.Vector.sub(target, this.position)
+
     //Implement a slow down effect
     let distance = desired.mag()
     if (distance <= this.perimiter){
@@ -43,7 +70,9 @@ class Organism {
     else steer.mult(this.dna[1])
 
     //update postition of organism
-    this.velocity.add(steer)
+    this.velocity
+      .add(steer)
+      .limit(this.maxSpeed)
     this.position.add(this.velocity)
   }
 
@@ -63,7 +92,7 @@ class Organism {
         for (let piece of meal.pieces){
           index++
           let distance = this.position.dist(piece)
-          if (distance < record) {
+          if (distance < record && distance < this.dna[2]) {
             record  = distance
             best = piece
             //the best piece is a vector that has to have
@@ -98,10 +127,13 @@ class Organism {
       line(0, 1, this.dna[0] * 100, 0)
       stroke(255, 0, 0)
       line(0, -1,  this.dna[1] * 100, 0)
+      //display perception radius
+      noFill()
+      stroke(0)
+      ellipse(0, 0, this.dna[2])
       //choose fill color based on health
       let color = map(this.health, 0, this.maxHealth, 255, 0)
       fill(color)
-      stroke(0)
       strokeWeight(2)
       triangle(this.radius, 0, -this.radius, this.radius, -this.radius, -this.radius)
     pop()

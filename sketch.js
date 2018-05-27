@@ -10,7 +10,7 @@ let meals = [
 			g: 255,
 			b: 0
 		},
-		regularity: 0.02
+		regularity: 0.1
 	},
 	{
 		name: 'poison',
@@ -22,15 +22,14 @@ let meals = [
 			g: 0,
 			b: 0
 		},
-		regularity: 0.02
+		regularity: 0.05
 	}
 ]
 
 //TODO: add an addPiece prototype
 
 function setup() {
-	createCanvas(windowWidth, windowHeight);
-
+	createCanvas(windowWidth, windowHeight)
 
 	//TEMP creates 10 new organisms
 	for (let i = 0; i < 10; i++){
@@ -40,7 +39,7 @@ function setup() {
 	//TEMP creates 10 new pieces from each meal
 
 	for (let meal of meals){
-				while(meal.pieces.length <= 20) {
+				while(meal.pieces.length <= 10) {
 					meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
 				}
 	}
@@ -53,12 +52,13 @@ function draw() {
 	let list = []
 	for (let organism of organisms)	{
 		organism.display()
+		organism.stayInBoundary()
 		organism.hunt(meals)
 		if (organism.health < 0) {
-			console.log(organism.health)
 			list.push(organisms.indexOf(organism))
 		}
 	}
+
 	for (let entry of list){
 		organisms.splice(entry, 1)
 	}
@@ -70,6 +70,7 @@ function draw() {
 		let r = meal.color.r
 		let g = meal.color.g
 		let b = meal.color.b
+		noStroke()
 		fill(r, g, b)
 		for (let piece of meal.pieces){
 			ellipse(piece.x, piece.y, meal.radius, meal.radius)
