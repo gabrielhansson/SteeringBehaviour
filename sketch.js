@@ -37,6 +37,12 @@ let env = {
 	generation: 1
 }
 
+let showPheno = document.getElementById('showPheno')
+let popSizeLabel = document.getElementById('popSizeLabel')
+let popSize = document.getElementById('popSize')
+let generationLabel = document.getElementById('generationLabel')
+
+
 //TODO: add an addPiece prototype
 
 
@@ -110,7 +116,7 @@ function draw() {
 		organisms = newGeneration.slice()
 		cG = newGeneration.slice()
 		env.generation++
-		document.getElementById('generationLabel').innerHTML = 'Generation: ' + env.generation
+		generationLabel.innerHTML = 'Generation: ' + env.generation
 		resetMeals()
 	}
 
@@ -137,4 +143,18 @@ function resetMeals(){
 			meal.pieces.push(createVector(random(width), random(height)))
 		}
 	}
+}
+
+showPheno.oninput = () => env.showPheno = showPheno.checked
+
+popSize.oninput = () => {
+  env.popSize = popSize.value
+  popSizeLabel.innerHTML = 'Population: ' + env.popSize
+  setup()
+}
+
+window.onload = () => {
+  showPheno.checked = env.showPheno
+  generationLabel.innerHTML = 'Generation: ' + env.generation
+  popSizeLabel.innerHTML = 'Population: ' + env.popSize
 }
