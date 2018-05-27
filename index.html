@@ -7,23 +7,23 @@
 
 	<title>EvolutionarySteeringBehaviours</title>
 
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+	<fieldset>
+		<legend>Information</legend>
+			<p id="generationLabel"></p>
+			<label for="popSize" id="popSizeLabel" class="settingsLabel"></label>
+			<input type="range" min="1" max="25" id="popSize" class="settingsLabel">
+			<label for="showPheno" id="showPhenoLabel" class="settingsLabel">Show Phenotypes</label>
+			<input type="checkbox" id="showPheno"class="settingsLabel">
+	</fieldset>
 	<script src="libraries/p5.js"></script>
 	<script src="libraries/p5.dom.js"></script>
 	<script src="libraries/p5.sound.js"></script>
 	<script src="sketch.js"></script>
 	<script src="organism.js"></script>
-
-	<style>
-		body {
-			margin:0;
-			padding:0;
-			overflow: hidden;
-		}
-		canvas {
-			margin:auto;
-		}
-	</style>
-</head>
-<body>
-</body>
+	<script src="main.js"></script>
+	</body>
 </html>

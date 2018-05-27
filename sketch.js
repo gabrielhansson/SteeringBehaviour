@@ -28,21 +28,27 @@ const meals = [
 	}
 ]
 
-//optimization variables
-const optVar = {
+//environmental variables
+let env = {
 	popSize: 10,
 	fitnessPow: 4,
-	lostHealth: 0.005
+	lostHealth: 0.005,
+	showPheno: true,
+	generation: 1
 }
 
 //TODO: add an addPiece prototype
 
 
 function setup() {
-	createCanvas(windowWidth, windowHeight)
+	createCanvas(windowWidth, windowHeight - 85)
 
-	//TEMP: creates 10 new organisms
-	for (let i = 0; i < optVar.popSize; i++){
+	//clears organisms
+	organisms = []
+	//reset env variables
+	env.generation = 1
+	//creates initial population
+	for (let i = 0; i < env.popSize; i++){
 		organisms[i] = new Organism()
 	}
 	cG = organisms.slice()
@@ -90,7 +96,7 @@ function draw() {
 		fittnessOfCG = cG.map(organism => organism.lifeTime / totalLifeTime)
 		//creates a new population
 		let index = 0
-		for (let i = 0; i < optVar.popSize; i++){
+		for (let i = 0; i < env.popSize; i++){
 			let random = Math.random()
 			while (random - fittnessOfCG[index] > 0){
 				index++
@@ -103,14 +109,15 @@ function draw() {
 		}
 		organisms = newGeneration.slice()
 		cG = newGeneration.slice()
-
+		env.generation++
+		document.getElementById('generationLabel').innerHTML = 'Generation: ' + env.generation
 		resetMeals()
 	}
 
  	//draw the eatable things
 	for (let meal of meals){
 		//food should recreated over time based on its regularity
-		if (Math.random() <= meal.regularity) meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
+		if (Math.random() <= meal.regularity) meal.pieces.push(createVector(random(width), random(height)))
 
 		let r = meal.color.r
 		let g = meal.color.g
@@ -126,8 +133,8 @@ function draw() {
 function resetMeals(){
 	for (let meal of meals){
 		meal.pieces = []
-		while(meal.pieces.length <= 20) {
-			meal.pieces.push(createVector(random(windowWidth), random(windowHeight)))
+		while(meal.pieces.length <= 50) {
+			meal.pieces.push(createVector(random(width), random(height)))
 		}
 	}
 }

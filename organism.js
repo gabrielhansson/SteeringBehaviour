@@ -2,7 +2,7 @@ let mutationRate = 0.1
 let mutationDiff = 0.1
 
 class Organism {
-  constructor(positionX = random(0, windowWidth), positionY = random(0, windowHeight), dna){
+  constructor(positionX = random(0, width), positionY = random(0, height), dna){
     this.position = createVector(positionX, positionY)
     this.velocity = createVector()
     this.headingDiff = Infinity
@@ -34,7 +34,7 @@ class Organism {
   live(meals){
     this.moved = false
     //health and lifeTime change over time
-    this.health -= optVar.lostHealth
+    this.health -= env.lostHealth
     this.lifeTime += 1
     this.display()
     this.stayInBoundary()
@@ -46,17 +46,20 @@ class Organism {
     push()
       translate(this.position.x, this.position.y)
       rotate(this.velocity.heading())
-      //display weights and perception
-      noFill()
-      strokeWeight(4)
-      stroke(0, 255, 0)
-      line(0, 0, this.dna[0][0] * 100, 0)
-      ellipse(0, 0, this.dna[0][1])
-      strokeWeight(2)
-      stroke(255, 0, 0)
-      line(0, 0,  this.dna[1][0] * 100, 0)
-      ellipse(0, 0, this.dna[1][1])
-
+      if (env.showPheno){
+        push()
+        //display weights and perception
+          noFill()
+          strokeWeight(4)
+          stroke(0, 255, 0)
+          line(0, 0, this.dna[0][0] * 100, 0)
+          ellipse(0, 0, this.dna[0][1])
+          strokeWeight(2)
+          stroke(255, 0, 0)
+          line(0, 0,  this.dna[1][0] * 100, 0)
+          ellipse(0, 0, this.dna[1][1])
+        pop()
+      }
       //choose fill color based on health
       let color = map(this.health, 0, this.maxHealth, 255, 0)
       fill(color)
@@ -68,13 +71,13 @@ class Organism {
 
   stayInBoundary(){
     let desired
-    let boundary = 10
+    let boundary = 0
     //hits right wall
-    if (this.position.x > windowWidth - boundary) desired = createVector(-this.maxSpeed, this.velocity.y)
+    if (this.position.x > width - boundary) desired = createVector(-this.maxSpeed, this.velocity.y)
     //hits left wall
     else if (this.position.x < boundary) desired = createVector(this.maxSpeed, this.velocity.y)
     //hits top wall
-    else if (this.position.y > windowHeight - boundary) desired = createVector(this.velocity.x, -this.maxSpeed)
+    else if (this.position.y > height - boundary) desired = createVector(this.velocity.x, -this.maxSpeed)
     //hits bottom wall
     else if (this.position.y < boundary) desired = createVector(this.velocity.x, this.maxSpeed)
 
