@@ -3,6 +3,7 @@ body {
   padding: 0;
   overflow: hidden;
   background-color: rgb(0, 0, 0);
+  font-family: monospace;
 }
 canvas {
   margin: 0;
@@ -12,13 +13,11 @@ fieldset {
   width: 510px;
   margin: 5px auto;
   height: 50px;
+  border: 2px solid rgb(255, 255, 255);
 }
 
 fieldset * {
   display: inline;
   padding:  0 0.25em;
-}
-
-.settings {
-  color: rgb(0, 0, 0);
+  color: rgb(255, 255, 255);
 }
