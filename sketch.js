@@ -31,7 +31,7 @@ const meals = [
 //environmental variables
 let env = {
 	popSize: 10,
-	fitnessPow: 4,
+	fitnessPow: 2,
 	lostHealth: 0.005,
 	showPheno: true,
 	generation: 1
@@ -79,6 +79,8 @@ function draw() {
 			cG.push(newOrganism)
 		}
 		if (organism.health < 0) {
+			//organism drops a food at that location when it dies
+			meals[0].pieces.push(createVector(organism.position.x, organism.position.y))
 			list.push(organisms.indexOf(organism))
 		}
 	}
@@ -148,9 +150,9 @@ function resetMeals(){
 showPheno.oninput = () => env.showPheno = showPheno.checked
 
 popSize.oninput = () => {
-  env.popSize = popSize.value
-  popSizeLabel.innerHTML = 'Population: ' + env.popSize
-  setup()
+	env.popSize = popSize.value
+	setup()
+	popSizeLabel.innerHTML = 'Population: ' + env.popSize
 }
 
 window.onload = () => {
