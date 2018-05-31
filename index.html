@@ -10,14 +10,15 @@
 	<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
 	<fieldset>
-		<legend>Information</legend>
+		<div class="settings">
+			<legend>Information</legend>
 			<p id="generationLabel"></p>
 			<label for="popSize" id="popSizeLabel" class="settingsLabel"></label>
 			<input type="range" min="1" max="25" id="popSize" class="settingsLabel">
 			<label for="showPheno" id="showPhenoLabel" class="settingsLabel">Show Phenotypes</label>
 			<input type="checkbox" id="showPheno"class="settingsLabel">
+		<div>
 	</fieldset>
 	<script src="libraries/p5.js"></script>
 	<script src="libraries/p5.dom.js"></script>

@@ -6,19 +6,19 @@ const meals = [
 		name: 'food',
 		healthyness: 0.5,
 		pieces: [],
-		radius: 15,
+		radius: 5,
 		color: {
 			r: 0,
 			g: 255,
 			b: 0
 		},
-		regularity: 0.05
+		regularity: 0.05 	
 	},
 	{
 		name: 'poison',
 		healthyness: -0.5,
 		pieces: [],
-		radius: 15,
+		radius: 5,
 		color: {
 			r: 255,
 			g: 0,
@@ -63,7 +63,7 @@ function setup() {
 }
 
 function draw() {
-	background(50)
+	background(0)
 	//as it is hard to modify an array whilst it is being iterated,
 	//list will keep track of the dead organisms to be deleted after the loop
 	//creations will keep track of newly created organisms

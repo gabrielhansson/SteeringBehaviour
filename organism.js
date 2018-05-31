@@ -26,8 +26,8 @@ class Organism {
       dna = this.mutate(dna)
     }
     this.dna = dna || [
-      [random(-1, 1), random(15, 400)],
-      [random(-1, 1), random(15, 400)]
+      [random(-1, 1), random(5, 400)],
+      [random(-1, 1), random(5, 400)]
     ]
   }
 
@@ -50,11 +50,11 @@ class Organism {
         push()
         //display weights and perception
           noFill()
-          strokeWeight(4)
+          strokeWeight(2)
           stroke(0, 255, 0)
           line(0, 0, this.dna[0][0] * 100, 0)
           ellipse(0, 0, this.dna[0][1])
-          strokeWeight(2)
+          strokeWeight(1)
           stroke(255, 0, 0)
           line(0, 0,  this.dna[1][0] * 100, 0)
           ellipse(0, 0, this.dna[1][1])
